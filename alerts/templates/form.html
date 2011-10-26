@@ -1,0 +1,201 @@
+
+{% extends "templates/base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="/media/css/multiselect.css" type="text/css" media="screen" />
+<script type="text/javascript" src="/static/admin/js/core.js"></script>
+<script type="text/javascript" src="/static/admin/js/getElementsBySelector.js"></script>
+<script type="text/javascript" src="/static/admin/js/actions.js"></script>
+<script type="text/javascript" src="/static/admin/js/SelectBox.js"></script>
+<script type="text/javascript" src="/static/admin/js/SelectFilter2.js"></script>
+<script type="text/javascript" src="/media/js/jsi18n.js"></script>
+<script type="text/javascript" src="/media/js/jquery-ui-timepicker-addon.js"></script>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+
+
+<script type="text/javascript">
+
+state0 = null;
+state1 = null;
+jQuery(document).ready(function(){
+        
+    // CONFIGURAÇÃO DO DATEPICKER DO JQUERYUI PARA PT-BR
+	$.datepicker.setDefaults({dateFormat: 'dd/mm/yy',
+        dayNames: ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo'],
+        dayNamesMin: ['D','S','T','Q','Q','S','S','D'],
+        dayNamesShort: ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb','Dom'],
+        monthNames: ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro', 'Outubro','Novembro','Dezembro'],
+        monthNamesShort: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set', 'Out','Nov','Dez'],
+        nextText: 'Próximo',
+    	prevText: 'Anterior'
+    });    
+        
+    $.timepicker.setDefaults({
+		timeOnlyTitle: 'Выберите время',
+		timeText: 'Horário',
+		hourText: 'Hora',
+		minuteText: 'Minuto',
+		secondText: 'Segundo',
+		currentText: 'Hora atual',
+		closeText: 'Ok',
+		ampm: false
+	});
+    
+        
+    jQuery('.datepicker').datetimepicker({
+        showSecond: true,
+        timeFormat: 'hh:mm:ss',
+        dateFormat: 'yy-mm-dd'
+    });
+    
+    
+    
+
+
+    
+    initial_state = false;
+    if (jQuery('li label[for="id_state_0"] input').attr('checked')) initial_state = true;
+    
+    if (jQuery('#id_trigger option:selected').attr('class') == 'linearinput'){
+        jQuery('.geofenceinput').hide();
+        jQuery('.limitclass').show();
+        jQuery('li label[for="id_state_0"]').html("<input type=\"radio\" id=\"id_state_0\" value=\"True\" name=\"state\" /\> Sinal acima do limite");
+        jQuery('li label[for="id_state_1"]').html("<input type=\"radio\" id=\"id_state_0\" value=\"False\" name=\"state\" /\> Sinal abaixo do limite");
+    }
+    
+    if ($('#id_trigger option:selected').attr('class') == 'geofence'){
+        $('.limitclass').hide();
+        $('.geofenceinput').show();
+        $('li label[for="id_state_0"]').html("<input type=\"radio\" id=\"id_state_0\" value=\"True\" name=\"state\" /\> Veículo entrar na cerca");
+        $('li label[for="id_state_1"]').html("<input type=\"radio\" id=\"id_state_0\" value=\"False\" name=\"state\" /\> Veículo sair da cerca");
+        
+    }
+    
+    if(initial_state){
+        jQuery('li label[for="id_state_0"] input').attr('checked','checked');
+        jQuery('li label[for="id_state_1"] input').removeAttr('checked');
+    }else{
+        jQuery('li label[for="id_state_1"] input').attr('checked','checked');
+        jQuery('li label[for="id_state_0"] input').removeAttr('checked');
+    }
+    
+    jQuery('#id_trigger').change(function(){
+        if ($('#id_trigger option:selected').attr('class') == 'linearinput'){
+           $('.geofenceinput').hide();
+           $('.limitclass').show();
+           $('li label[for="id_state_0"]').html("<input checked=\"checked\" type=\"radio\" id=\"id_state_0\" value=\"True\" name=\"state\" /\> Sinal acima do limite");
+           $('li label[for="id_state_1"]').html("<input type=\"radio\" id=\"id_state_0\" value=\"False\" name=\"state\" /\> Sinal abaixo do limite");
+        } else if ($('#id_trigger option:selected').attr('class') == 'geofence'){
+          $('.limitclass').hide();
+          $('.geofenceinput').show();
+          $('li label[for="id_state_0"]').html("<input checked=\"checked\" type=\"radio\" id=\"id_state_0\" value=\"True\" name=\"state\" /\> Veículo entrar na cerca");
+          $('li label[for="id_state_1"]').html("<input type=\"radio\" id=\"id_state_0\" value=\"False\" name=\"state\" /\> Veículo sair da cerca");
+        } else{
+            $('.geofenceinput').hide();
+            $('.limitclass').hide();
+            $('#id_linear_limit').attr("value","")
+            $('li label[for="id_state_0"]').html("<input checked=\"checked\" type=\"radio\" id=\"id_state_0\" value=\"True\" name=\"state\" /\> Ligado");
+            $('li label[for="id_state_1"]').html("<input type=\"radio\" id=\"id_state_0\" value=\"False\" name=\"state\" /\> Desligado");
+        }
+    });
+    
+    
+    jQuery("input[id^=id_receive]").click(function(){
+      
+      if (jQuery("#id_receive_sms").is(":checked") || jQuery("#id_receive_email").is(":checked")) {
+        jQuery(".alerttext").show();
+      } else {
+        jQuery(".alerttext").hide();
+      }
+      
+    });
+    
+    if (jQuery("#id_receive_sms").is(":checked") || jQuery("#id_receive_email").is(":checked")) {
+      jQuery(".alerttext").show();
+    } else {
+      jQuery(".alerttext").hide();
+    }
+    
+    
+
+});
+
+
+</script> 
+
+{% endblock %}
+
+{% block content %}
+<div  class="main-form">
+{% block form_title %}
+<h1><img class="icon" src="/media/img/equipment.png">Criação de usuário </h1>
+<hr />
+<h2>Dados de cadastro</h2>
+<em>Informe os dados necessários para o cadastro do usuário.</em>
+{% endblock %}
+<form action="." method="post" enctype="multipart/form-data">{% csrf_token %}
+<table>
+
+    {% for field in form %}
+      {% if  field.label == 'Limite' %}
+        <tr class="limitclass" style="display:none;">
+      {% else %}
+      {% if field.label == 'Cerca Eletrônica' %}
+        <tr class="geofenceinput" style="display:none;">
+      {% else  %}
+      {% if field.label == 'Texto a ser enviado por SMS/Email' %}
+        <tr class="alerttext" style="display:none;">
+      {% else  %}
+        <tr>
+      {% endif %}
+      {% endif %}
+      {% endif %}
+
+      {% if field.label_tag != '<label for="id_destinataries">Destinataries</label>' and  field.label_tag != '<label for="id_vehicle">Veículo</label>' %}
+      <td>
+        <div class="form-item">
+            <div class="item-left"> 
+                  <p>{{ field.label_tag }} {%if field.field.required%} *{%endif%}</p>
+                  <p id="help">{{ field.help_text|wordwrap:"50"|linebreaksbr }} </p>
+            </div>
+      </td>
+      {% endif %}
+      {% if field.label_tag == '<label for="id_destinataries">Destinataries</label>' or  field.label_tag == '<label for="id_vehicle">Veículo</label>' %}
+      <td colspan="2">
+        <div class="item-right">
+            <p class="errorlist">{{ field.errors }}</p>
+             <p class="field">{{ field }}</p>          
+        </div>
+        </td>
+      </tr>
+       </div>
+      {% else %}
+            <td>
+            <div class="item-right">
+                <p class="errorlist">{{ field.errors }} </p>
+                 <p class="field">{{ field }}</p>          
+            </div>
+            </td>
+            
+          </tr>
+          {% if field.label_tag == '<label for="id_trigger">Trigger</label>' %}
+          
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+    </table>
+<input type="hidden" name="{{ step_field }}" value="{{ step0 }}" />
+{{ previous_fields|safe }}
+<div align="center" style="margin-top:10px;" id="actions">
+  
+  
+      <input type="Submit" value="Confirmar">
+      <a onClick="history.back();">Cancelar</a>
+      </form>
+      
+  </div>
+<p class="clear">
+
+</div>
+{% endblock %}

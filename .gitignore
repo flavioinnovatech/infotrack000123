@@ -1,0 +1,5 @@
+*.pyc
+*.pyo
+itrack.db
+*~
+settings.py

@@ -1,0 +1,32 @@
+{% extends "templates/base.html" %}
+
+{%block title%}Infotrack - Remoção de Cliente {% endblock %}
+{% block content  %}
+
+<div class="main-form">
+  <h1><img src="/media/img/configuration.png" class="icon">Gerenciamento de Clientes</h1>
+  <hr />
+					<h2>Confirmar remoção de Cliente</h2>
+					<em> Tem certeza que deseja remover o Cliente {{main_system}}? Todos os usuários desse Cliente também serão removidos nesse processo. </em>
+					
+					{% if childs  %}
+					    <p>
+					        <em>
+					        Removendo este sistema, você também estará deletando os seus Clientes filhos listados abaixo:</em>
+					        <ul style="margin:10px;margin-left:50px;">
+					        {% for s in childs %}
+					            <li style="list-style:circle;">{{s}}</li>
+					        {% endfor %}
+					        </ul>
+					    </p>
+					{% endif %}
+					<div align="center" style="margin-top:10px;" id="actions">
+            
+            <form action='.' method='post'>{% csrf_token %}
+                <a href="#" onClick="parentNode.submit();">Confirmar</a>
+                <a onClick="history.back();">Cancelar</a>
+            </form>
+            </div>
+
+{% endblock %}
+

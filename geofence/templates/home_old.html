@@ -1,0 +1,83 @@
+{% extends "templates/base.html" %}
+
+{% block head %}
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?libraries=geometry&sensor=false"></script>
+<script type="text/javascript" src="/media/js/polygon(1.0).js"></script>
+<script type="text/javascript" src="/media/js/geo.js"></script>
+<script type="text/javascript" src="/media/js/geofence.js"></script>
+
+{% endblock %}
+
+{% block content %}
+<div  class="main-form" id="geofencetool">
+
+  <div style="float:left;width:20%;height:100%;">
+   <p>Posição do cursor:</p>
+   <p><span style="text-align:right;">Latitude:</span><input id="lat" type="text" style="margin: 5px 0 5px 5px;width: 118px;position:relative;left:10px;"></input></p>
+   <p>Longitude:<input id="lng" type="text" style="margin: 5px 0 5px 4px;width: 118px;"></input></p>
+   <div id="accordion" style="height:100%;">
+     <h3><a href="#">Círculo</a></h3>
+       <div>
+         <p>Digite um raio e em seguida selecione um centro:</p><br/>
+         <input type="text" id="radius" style="width:93px;"></input> metros <br/><br/><hr/><br/>
+         <p align="center"><span class="table-button" id="circletool" style="cursor:pointer;padding:5px;">Marcar centro</span></p><br><br/>
+         <p align="left">Ou digitar endereço do centro:</p>
+         <form id="circlesubmit" style="margin-top:5px;width:auto;" action="#map">
+           <p><input id="circlecenter" type="text"></input></p></br/>
+         </form>
+         <hr/><br/>
+         <p>Área da círculo selecionado:</p>
+         <input type="text" id="circlearea" style="width:93px;"></input> km<sup>2</sup>
+         <br/><br/><hr/><br/>
+         <input id="savecircle" type="submit" value="Salvar cerca eletrônica" style="float:right;"></input>
+       </div>
+     <h3><a href="#">Polígono</a></h3>
+       <div>
+         <p>Clique no botão abaixo para selecionar os vértices do polígono no mapa:</p><br/>
+         <p align="center"><span class="table-button"  id="polygontool" style="cursor:pointer;padding:5px;">Traçar polígono</span></p><br><br/>
+          <hr/><br/>
+          <p>Ou digite os endereços para os pontos:</p><br/>
+           <form id="polygonsubmit"  style="margin-top:5px;width:auto;" action="#map">
+             <div id="polygoninputs">
+               <input id="polygoninput1" type="text"></input>
+               <input id="polygoninput2" type="text"></input>
+               <input id="polygoninput3" type="text"></input>
+             </div>
+           <p><span id="addpoint"> + Adicionar ponto</span></p>
+           <p align="center"><input type="submit" value="Traçar polígono"/></p>
+           </form>
+           <hr/><br/>
+            <p>Área do polígono selecionado:</p>
+            <input type="text" id="polygonarea" style="width:93px;"></input> km<sup>2</sup>
+            <br/><br/><hr/><br/>
+         	<p align="center"><input id="savepolygon" type="submit" value="Salvar cerca eletrônica"></p></div>
+     <h3><a href="#">Rota</a></h3>
+       <div>
+         <p>Para selecionar a rota clique no botão abaixo e selecione os pontos desejados no mapa.</p><br/>
+         <p align="center"><span class="table-button"  id="routetool"  style="cursor:pointer;padding:5px;">Selecionar rota</span></p><br/><br/>
+         <p align="center"><span class="table-button"  id="routetool"  style="cursor:pointer;padding:5px;">Finalizar rota</span></p><br/><br/>
+         <hr/><br/>
+         <p>Ou digite os endereços para os pontos:</p><br/>
+         <form id="routesubmit"  style="margin-top:5px;width:auto;" action="#map">
+           <div id="routeinputs">
+             <input id="routeinput1" type="text" />
+             <input id="routeinput2" type="text" />
+           </div>
+         <p><span id="adddestiny"> + Adicionar destino</span></p>
+         <p align="center"><input type="submit" value="Traçar rota" /></p>
+         </form>
+        
+         <br/><br/><hr/><br/>
+         
+         <p>Distância da rota:</p><br/>
+         <input id="routedistance" type="text" style="width:103px;"> km
+         <p align="center"><input id="saveroute" type="submit" value="Salvar cerca eletrônica" /></p>
+         
+       </div>
+    </div>
+  </div>
+
+   <div id="map" style="float:right;height:555px;width:79%;background-color:white;"></div>
+   </div>
+{% endblock %}
+

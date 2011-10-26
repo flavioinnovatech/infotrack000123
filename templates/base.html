@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+	<head>
+		<title>{% block title %} Infotrack {% endblock %}</title>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		
+		<style type="text/css">
+		    body {background-color:#E0E0E0;} /*#nav {background: 7A7A7A; filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#A9A9A9, endColorstr=#7A7A7A);} #nav {background: -moz-linear-gradient(top,  #A9A9A9,  #7A7A7A);}#nav {background: -webkit-gradient(linear, left top, left bottom, from(#A9A9A9), to(#7A7A7A));}#nav .current a, #nav li:hover > a {background-color: #A1A1A1;}#nav .current a, #nav li:hover > a {filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr=#EBEBEB, endColorstr=#A1A1A1);}#nav .current a, #nav li:hover > a {background: -moz-linear-gradient(top,  #EBEBEB,  #A1A1A1);}#nav .current a, #nav li:hover > a {background: -webkit-gradient(linear, left top, left bottom, from(#EBEBEB), to(#A1A1A1));}#nav a {color: #E7E5E5;}#nav a:hover {color: #444444;}#nav ul{background-color:#CFCFCF;} #nav ul{filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FFFFFF, endColorstr=#CFCFCF);} #nav ul {background: -moz-linear-gradient(top,  #FFFFFF,  #CFCFCF);}#nav ul{background: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#CFCFCF));}#nav ul a:hover {background-color: #A0A0A0 !important; color:#E7E5E5 !important;}*/
+		</style>
+		
+		<link rel="stylesheet" href="/media/css/reset.css" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/media/css/master.css" type="text/css" media="screen" /> 
+		<link rel="stylesheet" type="text/css" media="screen" href="/media/css/jquery-ui-1.8.13.custom.css" />
+		<style type="text/css">
+  	{% autoescape off %}
+  	{{ request.session.css  }}
+  	{% endautoescape %}
+  	</style>
+		
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js" type="text/javascript"></script>
+		<!-- <script type="text/javascript">jQuery.noConflict();</script> -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js" type="text/javascript"></script> 
+		<script src="/media/js/ajaxsend.js" type="text/javascript"></script> 
+		<script src="/media/js/loading.js" type="text/javascript"></script> 
+    <script type="text/javascript">
+    jQuery(document).ready(function(){
+
+      jQuery('input[type="submit"]').mousedown(function(){
+        $(this).css("border-style","inset");
+      }).mouseup(function(){
+        $(this).css("border-style","solid");
+      }).mouseleave(function(){
+        $(this).css("border-style","solid");
+      });
+
+      $( "#button-refresh" ).button({
+            icons: {
+                primary: "ui-icon-refresh"
+            },
+      }).click(function(){
+            jQuery.post(
+    	"/system/sms_count/",
+        {},
+        
+		function(data){
+
+          //alert(data.toSource());
+          jQuery('#sms_count').html(data['sms_sent']);
+          jQuery('#sms_total').html(data['sms_total']);
+        },'json'
+	);
+      });
+
+    });
+    </script>
+	  
+	  <script type="text/javascript" src="/media/js/master.js"></script>
+    <script type="text/javascript" src="/media/js/alertcheck.js"></script>
+		{% block head %} {% endblock %}
+		
+	</head>
+	<body>
+		{% block fullscreen %}
+		{% endblock %}
+		<!-- Header/Logo -->
+		<div id="topContainer">
+			<div class="centerContainer">
+				<a href="#" title="Titulo Dinamico" class="logo fl"></a>
+ 				<div id="loginstatus" align="right" style="">
+ 				  <div id="status-left" style="float:left;">
+ 				    <p> Usuário: <a href="{% url accounts.views.edit request.session.user_id %}"> {{request.user}}</a></p>
+ 				    <p> Cliente: {{request.session.domain}}</p>
+ 				  </div>
+ 				  <div id="status-right" style="float:left;margin-left:30px;">
+ 				    <p>SMS enviados: <span id="sms_count">{{request.session.sms_sent}}</span></p>
+ 				    <p>SMS no total: <span id="sms_total">{{request.session.sms_total}}</span></p>
+ 				  </div>
+ 				  <div style="float:right;">
+ 				  <p style="display:block;margin-left:10px;"><button id="button-refresh" style="padding:15px 5px 15px 5px;"></button></p>
+ 				          
+ 				  </div>
+ 				</div>
+				
+			</div> <!-- end centerContainer -->
+		</div> <!-- end topContainer -->
+
+		<!-- Menu Container -->
+		<div id="menuContainer">
+			<div class="centerContainer" align="center">
+				<ul id="nav" class="color1">
+					<li><a href="{% url rastreamento.views.index %}">Rastreamentos</a></li>
+					<li><a href="{% url reports.views.report request.session.system %}">Relatórios</a></li>
+					
+							{% for grp in request.user.groups.all %}
+							    {% if grp.name  == "administradores" or grp.name == "comando" %}
+							    <li><a href="#">Comandos</a>
+						            <ul>
+							            <li><a href="{% url command.views.index %}">Ver histórico</a></li>
+							            <li><a href="{% url command.views.create request.session.system %}">Enviar um novo comando </a></li>
+							        </ul>
+            					</li>
+							    {% endif %}
+							 {%endfor%}
+
+					
+							{% for grp in request.user.groups.all %}
+							    {% if grp.name  == "administradores" or grp.name == "alerta"  %}
+							    <li><a href="#">Alertas</a>
+						            <ul>
+							            <li><a href="{% url alerts.views.index %}">Ver histórico</a></li>
+							            <li><a href="{% url alerts.views.create request.session.system %}">Criar alerta</a></li>
+									</ul>
+					            </li>
+							    {% endif %}
+							 {%endfor%}
+							 
+							 {% for grp in request.user.groups.all %}
+							    {% if grp.name  == "administradores" or grp.name == "alerta"  %}
+							    <li><a href="#">Ferramentas</a>
+						            <ul>
+							            <li><a href="{% url geofence.views.index %}">Cercas eletrônicas</a></li>
+							             <li><a href="{% url paths.views.index %}">Trajetos</a>
+									</ul>
+					            </li>
+							    {% endif %}
+							 {%endfor%}
+							
+							{% for grp in request.user.groups.all %}
+							    {% if grp.name  == "administradores" %}
+							    <li><a href="#">Configurações</a>
+						            <ul>
+						                <li><a href="{% url system.views.index %}"> Clientes </a></li>
+							            <li><a href="{% url equipments.views.index %}">Equipamentos</a></li>
+							            <li><a href="{% url drivers.views.index %}"> Motoristas </a></li>
+							            <li><a href="{% url accounts.views.index %}">Usuários</a></li>
+							            <li><a href="{% url vehicles.views.index %}">Entidades Rastreadas</a></li>
+							            
+							    	</ul>
+					            </li>
+							    {% endif %}
+                             
+							    
+					        {% endfor %}
+							
+
+					<li><a href="#">Ajuda</a></li>
+					<li><a href="{% url django.contrib.auth.views.logout_then_login %}">Sair</a></li>
+				</ul>
+			</div> <!-- end centerContainer -->
+		</div> <!-- end menuContainer -->
+		<!-- Conteudo -->
+		<div id="content" style="width:99%">
+			<div class="centerContainer">
+				{% block content %}{% endblock %}
+			</div> <!-- end centerConteiner -->
+		</div> <!-- end content -->
+		<div id="systemid" style="display:none;">{{request.session.system}}</div>
+		<div id="userid" style="display:none;">{{request.user.id}}</div>
+		<div id="vehicledialog" style="display:none;"></div>
+		<div id="generaldialog" style="display:none;"></div>
+		<div id="loadingScreen" style="display:none;" title="Carregando">
+		    <p align="center">Por favor espere...</p>
+		    <p align="center"><img src="/media/img/ajax-loader.gif"></p>
+		</div>  
+		</div>
+	</body>
+	
+</html>

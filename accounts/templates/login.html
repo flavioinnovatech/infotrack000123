@@ -1,0 +1,56 @@
+<head>
+<link rel="stylesheet" href="/media/css/reset.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="/media/css/master.css" type="text/css" media="screen" />
+<title>{%block title%}Infotrack - Login {% endblock %}</title>
+</head>
+
+
+<body>
+{% block content %}
+{% load url from future %}
+
+<div id="login" align="center">
+	<img src="/media/img/logo.png">
+
+<form action='.' method='post'>{% csrf_token %}
+  <table>
+    <tr>
+      <td colspan="2">
+        <p align="center"><label><font color="#FF0000">{{erro}}</font></label></p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div>
+        <label for="username">Usuário:</label>
+        </div>
+      </td>
+      <td>
+        <div>
+          <p>
+          <input  type="text" name="username" value="" id="username">
+          </p>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div>
+        <label for="password">Senha:</label>
+        </div>
+      </td>
+      <td>
+        <input type="password" name="password" value="" id="password">
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <p align="center"><input class="login-button" type="submit" value="Entrar" /> </p>
+        <p align="center" class="forgot"><a href="/accounts/password/reset/">Esqueci minha senha</a></p>
+        <input type="hidden" name="next" value="{{ next|escape }}" />
+      </td>
+    </tr>
+    </table>
+</div>
+{% endblock %}
+</body>

@@ -1,0 +1,215 @@
+{% extends "templates/base.html" %}
+{%block title%}Infotrack - Entidades {% endblock %}
+{% block head %}
+<script src="/media/js/jquery.jqGrid.min.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+////////////////// Função para habiliar o POST
+$(document).ajaxSend(function(event, xhr, settings) {
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    function sameOrigin(url) {
+        // url could be relative or scheme relative or absolute
+        var host = document.location.host; // host + port
+        var protocol = document.location.protocol;
+        var sr_origin = '//' + host;
+        var origin = protocol + sr_origin;
+        // Allow absolute or scheme relative URLs to same origin
+        return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+            (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+            // or any other URL that isn't scheme relative or absolute i.e relative.
+            !(/^(\/\/|http:|https:).*/.test(url));
+    }
+    function safeMethod(method) {
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
+        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+    }
+});
+
+equip_id = 0;
+dl = null;
+
+jQuery(document).ready(function(){
+    
+    
+    
+    jQuery("#equip-dialog").hide();
+    
+    jQuery('.equip-button').button({
+            icons: {
+                primary: "ui-icon-wrench",
+            },
+    }).click(function(x){
+        jQuery.get(
+            '/vehicles/edit_equip/'+jQuery(this).attr('id')+"/",
+            {},
+            function(data){
+                
+                dl = jQuery("#equip-dialog").dialog({
+                    title: 'Editar equipamento '+data['equip'],
+                    modal: true,
+                });
+                jQuery("#simcard").val(data['simcard']);
+                return false;
+            },'json');
+        
+        equip_id = parseInt(jQuery(this).attr('id'));
+        return false;
+    });
+    
+    $(".equip-delete").button({
+            icons: {
+                primary: "ui-icon-trash",
+            },
+    }).click(function(){
+        $( "#dialog-confirm" ).dialog({
+		        resizable: false,
+		        height:140,
+		        modal: true,
+		        buttons: {
+			        "Apagar o equipamento selecionado": function() {
+				        
+				        jQuery.post(
+		                    '/vehicles/delete_equip/',
+		                    {'equip':equip_id.toString()},
+		                     function(data){}
+		                );
+				        jQuery('#node-'+equip_id.toString()+' td').css('background','#fdd');
+                        jQuery('#node-'+equip_id.toString()).fadeOut(1000);
+				        $( this ).dialog( "close" );
+				        dl.dialog( "close");
+			        },
+			        "Cancelar": function() {
+				        $( this ).dialog( "close" );
+			        }
+		        }
+	        });
+
+        
+    });
+    
+    $('.new-icon').button({ icons:{ primary:"ui-icon-circle-plus" }});
+    $('.edit-icon').button({ icons:{ primary:"ui-icon-pencil" }});
+    $('.delete-icon').button({ icons:{ primary:"ui-icon-trash" }});
+    $('.swap-icon').button({ icons:{ primary:"ui-icon-transferthick-e-w" }});
+    
+    $(".equip-edit").button({
+            icons: {
+                primary: "ui-icon-pencil"
+            },
+    }).click(function(){
+        new_simcard = jQuery("#simcard").val();
+        old_simcard = jQuery('#node-'+equip_id.toString()+' td:nth-child(2) span').text();
+        if (new_simcard != old_simcard){
+            jQuery('#node-'+equip_id.toString()+' td:nth-child(2) span').text(new_simcard);
+            jQuery.post(
+			    '/vehicles/edit_equip/'+equip_id.toString()+"/",
+			    {'equip':equip_id.toString(),
+			     'simcard':new_simcard},
+			     function(data){}
+			);
+            dl.dialog( "close" );
+            
+            jQuery('#node-'+equip_id.toString()+' td').effect('highlight',{},3000);
+            
+        }
+        
+    });
+});
+
+</script>
+
+<link rel="stylesheet" href="/media/css/crud.css" type="text/css" media="screen" /> 
+{% endblock  %}
+
+
+
+{% block content %}
+
+<div id="config">
+    <div class="main-form">
+        <h1><img class="icon" src="/media/img/vehicle.png">Gerenciamento de Entidades Rastreadas</h1>
+        <hr/>
+        
+        <h2>Lista de Entidades:</h2>
+				<em>  </em>
+        
+      {% if not vehicle_table|length_is:"0" %}
+      <table cellspacing="0" class="table">
+      <!-- to create a darker table row, you must add the class even to a tr eg.
+      <tr class="even">…</tr>
+      --><!-- Table Header -->
+      <thead>
+        <tr>
+          <th>Equipamento</th>
+          {% if show_simcard %}<th>Simcard</th>{%endif%}
+          <th>Entidade Rastreada</th>
+          <th>Ação</th>
+          
+          
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in vehicle_table %}
+                <tr style="" id='node-{{item.equip_id}}'>
+            <td>{{item.serial}}</td>
+            {% if show_simcard %}
+                <td><span class="simcard-text">{{item.simcard}}</span>
+                <a href="#" class="table-button equip-button" style="float:right;padding:0 3px 0 3px;" id="{{item.equip_id}}">...</a></td>{% endif %}
+            {% if not item.plate %}
+                <td></td>
+                <td>
+                    <a href="{% url vehicles.views.create item.equip_id %}" class="table-button new-icon" style="padding-left:5px;">Criar veículo</a>
+                    
+                </td>
+            {% else %}
+                <td>{{item.plate}}</td>
+                <td><a href="{% url vehicles.views.edit item.vehicle_id %}" class="table-button edit-icon" style="padding-left:5px;"> Editar</a>
+                    <a href="{% url vehicles.views.delete item.vehicle_id %}" class="table-button delete-icon" style="padding-left:5px;"> Apagar</a>
+                    <a href="{% url vehicles.views.swap item.vehicle_id %}" class="table-button swap-icon" style="padding-left:5px;"> Remanejar</a>   
+                </td>
+            {% endif %}
+            </tr>
+        {% endfor %}
+        
+      </tbody>
+      </table>
+      {% else %}
+        <p align="center">Nenhum veículo cadastrado para esse sistema.</p>
+      {% endif %}
+      </div>
+      <div id="equip-dialog" title="Editar equipamento">
+        <p>SIMcard: <input type="text" name="simcard" id="simcard" /><button class="table-button equip-edit">Editar</button></p>
+        <p style="padding: 30px 0; display:block; text-align:center;"><button class="table-button equip-delete">Apagar Equipamento</button></p>
+        
+      </div>
+      <div id="dialog-confirm" title="Confirmar exclusão">Deseja apagar o equipamento selecionado?</div>
+</div>
+
+{% block dialog %}
+
+{% endblock %}
+
+
+{% csrf_token %}
+
+
+
+{% endblock %}

@@ -1,0 +1,229 @@
+{% extends "templates/base.html" %}
+{%block title%}Infotrack - Histórico de comandos {% endblock %}
+{% block head %}
+<script src="/media/js/jquery.jqGrid.min.js" type="text/javascript"></script>
+<script src="/media/js/command.js" type="text/javascript"></script>
+<script type="text/javascript">
+
+function timedRefresh(timeoutPeriod) {
+	setTimeout("location.reload(true);",timeoutPeriod);
+}
+
+////////////////// Função para habiliar o POST
+$(document).ajaxSend(function(event, xhr, settings) {
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    function sameOrigin(url) {
+        // url could be relative or scheme relative or absolute
+        var host = document.location.host; // host + port
+        var protocol = document.location.protocol;
+        var sr_origin = '//' + host;
+        var origin = protocol + sr_origin;
+        // Allow absolute or scheme relative URLs to same origin
+        return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+            (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+            // or any other URL that isn't scheme relative or absolute i.e relative.
+            !(/^(\/\/|http:|https:).*/.test(url));
+    }
+    function safeMethod(method) {
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
+        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+    }
+});
+
+jQuery(document).ready(function(){
+    timedRefresh(30000);
+});
+
+</script>
+
+<script type="text/javascript" src="/media/js/jquery.treeTable.js"></script>
+<link rel="stylesheet" href="/media/css/jquery.treeTable.css" type="text/css" media="screen" /> 
+<script type="text/javascript">
+    $(document).ready(function()  {
+        $("#tree").treeTable({
+            initialState: "expanded"
+        });
+    });  
+</script>
+
+<link rel="stylesheet" href="/media/css/crud.css" type="text/css" media="screen" /> 
+
+
+{% endblock  %}
+
+
+
+{% block content %}
+
+<div id="config">
+    <div class="main-form">
+        <h1><img class="icon" src="/media/img/command.png">Histórico de comandos</h1>
+        <hr/>
+        
+        <h2>Lista de Comandos:</h2>
+				<em> </em>
+        
+        <!-- <div class="ui-jqgrid ui-widget ui-widget-content ui-corner-all" id="gbox_list4" dir="ltr"><div id="load_list4" class="loading ui-state-default ui-state-active" style="display: none;">Loading...</div><div class="ui-jqgrid-view" id="gview_list4"><div class="ui-jqgrid-titlebar ui-widget-header ui-corner-top ui-helper-clearfix"><a href="javascript:void(0)" role="link" class="ui-jqgrid-titlebar-close HeaderButton" style="right: 0px;"></a><p class="ui-jqgrid-title">&nbsp</p></div><div class="ui-state-default ui-jqgrid-hdiv" style="margin-bottom:5px;><div class="ui-jqgrid-hbox"><table cellspacing="0" cellpadding="0" border="0" aria-labelledby="gbox_list4" role="grid"  class="ui-jqgrid-htable">
+                  
+                  <thead>
+                    
+                    <tr role="rowheader" class="ui-jqgrid-labels">
+                      <th class="ui-state-default ui-th-column ui-th-ltr" role="columnheader" id="list4_id" style="width: 100px;text-align:center;"><div id="jqgh_id" class="ui-jqgrid-sortable">Veículo</div></th>
+                        <th class="ui-state-default ui-th-column ui-th-ltr" role="columnheader" id="list4_id" style="width: 100px;text-align:center;"><div id="jqgh_id" class="ui-jqgrid-sortable">Comando</div></th>
+                      <th class="ui-state-default ui-th-column ui-th-ltr" role="columnheader" id="list4_invdate" style="width: 100px;text-align:center;"><div id="jqgh_invdate" class="ui-jqgrid-sortable">Estado</div></th>
+                      <th class="ui-state-default ui-th-column ui-th-ltr" role="columnheader" id="list4_invdate" style="width: 150px;text-align:center;"><div id="jqgh_invdate" class="ui-jqgrid-sortable">Data enviada</div></th>
+                      <th class="ui-state-default ui-th-column ui-th-ltr" role="columnheader" id="list4_invdate" style="width: 150px;text-align:center;"><div id="jqgh_invdate" class="ui-jqgrid-sortable">Data recebida</div></th>
+                      <th class="ui-state-default ui-th-column ui-th-ltr" role="columnheader" id="list4_invdate" style="width: 150px;text-align:center;"><div id="jqgh_invdate" class="ui-jqgrid-sortable">Data executada</div></th>
+                      <th class="ui-state-default ui-th-column ui-th-ltr" role="columnheader" id="list4_invdate" style="width: 100px;text-align:center;"><div id="jqgh_invdate" class="ui-jqgrid-sortable">Ações</div></th></tr></thead></table></div></div><div class="ui-jqgrid-bdiv"><div style="margin-left:0px;"><div></div><table id="tree2" cellspacing="0" cellpadding="0" border="0" id="list4" tabindex="1" role="grid" aria-multiselectable="true" aria-labelledby="gbox_list4" class="ui-jqgrid-btable" style="width:100%"><tbody>
+                      
+                      
+                <tr style="height: auto; width:100%" role="row" class="jqgfirstrow">
+                
+                <td style="height: 0px; width: 20px;" role="gridcell"></td>
+                
+                <td style="height: 0px; width:20px" role="gridcell"></td
+                <td style="height: 0px; width:20px" role="gridcell"></td>
+                
+                
+                </tr>
+                  {% for item in command_tree %}
+                      {% if item.sysname %}
+                      <tr style='width:5%;' id='node-{{item.id}}' {% if item.childof %}class='child-of-node-{{item.childof}}'{% endif %}>
+                          <td style='width:50px;font-weight:bold;text-align:left;' >{{item.sysname}}</td>
+                      </tr>
+                      {% else %}
+                      <tr style = 'width:5%' {% if item.childof %}class='child-of-node-{{item.childof}}'{% endif %}>
+                          <td style='width:100px;text-align:left;' ><a id='{{item.id}}' class='commanddialog' href="#">{{item.plate}}</a></td>
+                          <td style="width:100px">{{item.type}} : {{item.action}} </td>
+                          <td style="width:100px"> 
+                          {% if item.state == "0" %}
+                              <img src="/media/img/command-1-thumb.png">
+                              {% else %}{% if item.state == "1" %}
+                                  <img src="/media/img/command-2-thumb.png">
+                                  {% else %}{% if item.state == "2" %}
+                                      <img src="/media/img/command-3-thumb.png">
+                                      {% else %}{% if item.state == "3" %}
+                                          <img src="/media/img/command-fail-thumb.png">
+                                      {% endif %}
+                                  {% endif %}
+                              {% endif %}
+                          {% endif %}  
+                          
+                          </td>
+                          <td style="width:150px">{% if item.time_sent %}{{item.time_sent|date:"SHORT_DATETIME_FORMAT"}}{% endif %}</td>
+                          <td style="width:150px">{% if item.time_received %}{{item.time_received|date:"SHORT_DATETIME_FORMAT"}}{% endif %}</td>
+                          <td style="width:150px">{% if item.time_executed %}{{item.time_executed|date:"SHORT_DATETIME_FORMAT"}}{% endif %}</td>
+                      
+                          <td><a class='table-button' href="/commands/delete/{{item.id}}">Apagar</a><script>
+                          
+                          
+                          
+                          
+                          </script></td>
+                      </tr>
+                      {% endif %}
+                  {% endfor %}
+                
+                  
+                  
+                    
+                  </tr></tbody></table></div></div></div><div id="rs_mlist4" class="ui-jqgrid-resize-mark">&nbsp;</div>
+                <div align="center" style="margin-top:30px;" id="actions">
+                    <a href="{% url command.views.create request.session.system %}">Enviar um novo comando </a>
+                </div> -->
+<!-- </div> -->
+      {% if not command_tree|length_is:"0" %}
+      <table cellspacing="0" id="tree" class="table">
+      <!-- to create a darker table row, you must add the class even to a tr eg.
+      <tr class="even">…</tr>
+      --><!-- Table Header -->
+      <thead>
+        <tr>
+          <th>Veículo</th>
+          <th>Enviado por:</th>
+          <th>Comando</th>
+          <th>Estado</th>
+          <th>Data enviada</th>
+          <th>Data recebida</th>
+          <th>Data executada</th>
+          <th>Ação</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        {% for item in command_tree %}
+          {% if item.sysname %}
+            <tr style="" id='node-{{item.id}}' {% if item.childof and line.sysid != request.session.system0 != 0 %}class='child-of-node-{{item.childof}}'{% endif %}>
+              <td style='font-weight:bold;text-align:left;' >{{item.sysname}}</td>
+            </tr>
+          {% else %}
+            <tr {% if item.childof %}class='child-of-node-{{item.childof}}'{% endif %}>
+               <td style='text-align:left;' ><a id='{{item.id}}' class='commanddialog' href="#">{{item.plate}}</a></td>
+               <td>{{item.sender}}</td>
+               <td>{{item.type}} : {{item.action}}</td>
+               <td> 
+               {% if item.state == "0" %}
+                   <img src="/media/img/command-1-thumb.png">
+                   {% else %}{% if item.state == "1" %}
+                       <img src="/media/img/command-2-thumb.png">
+                       {% else %}{% if item.state == "2" %}
+                           <img src="/media/img/command-3-thumb.png">
+                           {% else %}{% if item.state == "3" %}
+                               <img src="/media/img/command-fail-thumb.png">
+                           {% endif %}
+                       {% endif %}
+                   {% endif %}
+               {% endif %}  
+
+               </td>
+               <td>{% if item.time_sent %}{{item.time_sent|date:"SHORT_DATETIME_FORMAT"}}{% endif %}</td>
+               <td>{% if item.time_received %}{{item.time_received|date:"SHORT_DATETIME_FORMAT"}}{% endif %}</td>
+               <td>{% if item.time_executed %}{{item.time_executed|date:"SHORT_DATETIME_FORMAT"}}{% endif %}</td>
+               <td><a class='table-button' href="/commands/delete/{{item.id}}">Apagar</a>
+               </td>
+            </tr>
+          {% endif %}
+        {% endfor %}
+        
+      </tbody>
+      </table>
+      {% else %}
+      <p align="center">Nenhum comando cadastrado para esse sistema.</p>
+      {% endif %}
+      <div align="center" style="margin-top:30px;" id="actions">
+          <a href="{% url command.views.create request.session.system %}">Enviar um novo comando </a>
+      </div>
+      
+    </div>
+      </div>
+
+
+
+
+{% block dialog %}
+
+{% endblock %}
+
+
+{% csrf_token %}
+
+
+
+{% endblock %}

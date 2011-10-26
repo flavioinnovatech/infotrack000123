@@ -1,0 +1,140 @@
+{% extends "templates/base.html" %}
+
+{% block head %}
+
+<style type="text/css">
+
+    #id_vehicle{
+        width:178px;
+    }
+    .field {
+        height:30px;
+    }
+    .field #id_vehicle_other{
+        margin:0;
+    }
+
+    
+</style>
+
+<script type="text/javascript" src="http://openlayers.org/api/OpenLayers.js"></script>
+
+<script type="text/javascript" src="/media/js/paths.js"></script>
+<script type="text/javascript" src="/media/js/wms.js"></script>
+<script type="text/javascript" src="/media/js/jquery-ui-timepicker-addon.js"></script>
+<script type="text/javascript" src="/media/js/ajaxsend.js"></script>
+<script type="text/javascript" src="/media/js/alertcheck.js"></script>
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+
+<script type="text/javascript">
+//limiting the maximum and minimum dates
+    $(document).ready(function(){
+    	
+    	 // CONFIGURAÇÃO DO DATEPICKER DO JQUERYUI PARA PT-BR
+		$.datepicker.setDefaults({dateFormat: 'dd/mm/yy',
+	        dayNames: ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo'],
+	        dayNamesMin: ['D','S','T','Q','Q','S','S','D'],
+	        dayNamesShort: ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb','Dom'],
+	        monthNames: ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro', 'Outubro','Novembro','Dezembro'],
+	        monthNamesShort: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set', 'Out','Nov','Dez'],
+	        nextText: 'Próximo',
+	    	prevText: 'Anterior'
+	    });    
+	        
+        //"Выберите время" russianisk ?? why?
+	    $.timepicker.setDefaults({
+			timeOnlyTitle: 'Selecione um horario',
+			timeText: 'Horário',
+			hourText: 'Hora',
+			minuteText: 'Minuto',
+			secondText: 'Segundo',
+			currentText: 'Hora atual',
+			closeText: 'Ok',
+			ampm: false
+		});
+	    	
+        dates = $( "#id_period_end, #id_period_start " ).datetimepicker({
+			    showSecond: true,
+                timeFormat: 'hh:mm:ss',
+                dateFormat: 'yy-mm-dd',
+			    onSelect: function( selectedDate ) {
+				    var option = this.id == "id_period_start" ? "minDate" : "maxDate",
+					    instance = $( this ).data( "datepicker" ),
+					    date = $.datepicker.parseDate(
+						    instance.settings.dateFormat ||
+						    $.datepicker._defaults.dateFormat,
+						    selectedDate, instance.settings );
+				
+				    date2  = new Date(date);
+				    date2.setMonth(date.getMonth()+ (this.id == "id_period_start" ? 1 : -1));
+                    
+				    var option2 = this.id == "id_period_start" ? "maxDate" : "minDate";				    
+					
+				    dates.not( this ).datetimepicker( "option", option, date );
+				    dates.not( this ).datetimepicker( "option", option2, date2);
+			    }
+	    });
+	    
+	    
+	    if ($('.switcher option:selected').text() == 'Outro:'){
+            this.id = 'id_vehicle_other';
+            $(this).attr('name','vehicle_other');
+            $(this).parent().append("<input type=\"text\" placeholder=\"Digite a placa\" id=\"id_vehicle\" class=\"vehiclass\" name=\"vehicle\" >");
+        }else if(this.id == 'id_vehicle_other'){
+            $('#id_vehicle').remove()
+            this.id = 'id_vehicle';
+            $(this).attr('name','vehicle');
+        }
+    
+    
+        $('.switcher').change(function(){
+            if ($('.switcher option:selected').text() == 'Outro:'){
+                this.id = 'id_vehicle_other';
+                $(this).attr('name','vehicle_other');
+                $(this).parent().append("<input type=\"text\" placeholder=\"Digite a placa\" id=\"id_vehicle\" class=\"vehiclass\" name=\"vehicle\" >");
+            }else if(this.id == 'id_vehicle_other'){
+                $('#id_vehicle').remove()
+                this.id = 'id_vehicle';
+                $(this).attr('name','vehicle');
+            } 
+        });
+	    
+	});
+</script>
+{% endblock %}
+
+{% block content %}
+<div  class="main-form" id="geofencetool" style="overflow:hidden;">
+    <h1><img class="icon" src="/media/img/command.png">Trajetos </h1><hr/>
+<h2>Consultar Trajeto</h2>
+<em></em>
+    <div style="float:left;width:190px;height:100%;">
+        <form style="margin:0;">
+            <fieldset style="border: 1px solid #999; width:190px; padding:5px;">
+            <legend style="font-weight:bold;">Trajeto</legend>
+                <p>{{form.vehicle.label}}:</p><p>{{form.vehicle}}</p>
+                <p>{{form.period_start.label}}:</p><p>{{form.period_start}}</p>
+                <p>{{form.period_end.label}}:</p><p>{{form.period_end}}</p>
+                <p>{{form.geofence.label}}:</p><p>{{form.geofence}}</p>
+                <div style="text-align:center;margin:10px;"><a href="#" id="send" class="table-button" style="margin: 5px; padding:5px;">Buscar</a></div>
+            </fieldset>
+        </form>
+        
+
+        <!-- <fieldset style="border: 1px solid #999; width:190px; padding:5px;">
+            <legend style="font-weight:bold;">Posição do cursor</legend>
+            <p><span style="text-align:right;">Latitude:</span><input id="lat" type="text" style="width: 118px;position:relative;left:14px;"></input></p>
+            <p><span style="text-align:right;">Longitude:</span><input id="lng" type="text" style="margin: 5px 0 5px 4px;width: 118px;"></input></p>
+        </fieldset> -->
+
+        
+    </div>
+    
+    <div id="distance_float_panel"></div>
+    <div id="map" style="float:right;height:555px;width:76%;background-color:white;margin-top:10px;"></div>
+   </div>
+  
+  </div>
+
+   
+{% endblock %}

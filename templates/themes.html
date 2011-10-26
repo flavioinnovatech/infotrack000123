@@ -1,0 +1,117 @@
+{% extends "templates/base.html" %}
+{% block title %} Temas {% endblock %}
+
+{% block head %}
+<script type="text/javascript" src="http://jscolor.com/jscolor/jscolor.js"></script>
+<script type="text/javascript">
+
+function my_js_callback(data){
+  if(data==Dajaxice.EXCEPTION){
+    alert('Error! Something happens!');
+  }
+  else{
+		$("body").css('background-color',data.message);
+  }
+}
+
+
+$(document).ready(function(){
+	$("#color_submenu_hover").change(function(){
+		cor = $("#color_submenu_hover").css('background-color');
+		Dajaxice.themes.myexample(my_js_callback, {'text':cor});
+	});
+	
+
+});
+
+</script>
+{% endblock %}
+
+{% block content %}
+
+{% load dajaxice_templatetags %}
+{% dajaxice_js_import %}
+
+{{ settings }}
+<div id="config">
+	<table width="100%" cellpadding="0">
+		<tbody>
+			<tr>
+				<td>
+					<h1>Temas</h1>
+				</td>
+				<td>
+					
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<h2>Fundo do site:</h2>
+				</td>
+				<td>
+					<input class="color" id="color_submenu_hover" value="{{ color_submenu_hover }}">
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<h2>Fundo da tabela:</h2>
+				</td>
+				<td>
+					<input class="color">
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+	
+
+	<h2>Fundo da tabela:</h2>
+	
+
+	<h2>Gradiente inicial menu:</h2>
+	<input class="color">
+
+	<h2>Gradiente final menu: </h2>
+	<input class="color">
+
+	<h2>Gradiente inicial submenu:</h2>
+	<input class="color">
+
+	<h2>Gradiente final submenu: </h2>
+	<input class="color">
+
+	<h2>Submenu hover: </h2>
+	<input class="color">
+
+	<h2>Fonte do menu: </h2>
+	<input class="color">
+
+	<h2>Fonte do menu hover: </h2>
+	<input class="color">
+
+	<h2>Fonte do submenu: </h2>
+	<input class="color">
+
+	<h2>Fonte do submenu hover: </h2>
+	<input class="color">
+
+	<h2>Cor de fundo da linha da tabela: </h2>
+	<input class="color">
+
+	<h2>Cor de fundo da linha da tabela hover: </h2>
+	<input class="color">
+
+	<h2>Cabeçalho da tabela hover: </h2>
+	<input class="color">
+
+	<h2>Fonte padrão: </h2>
+	<input class="color">
+
+	<h2>Fonte padrão do link: </h2>
+	<input class="color">
+
+	<br/>
+	<input type="submit" value="Salvar"/> ou cancelar
+
+</div>
+{% endblock %}
